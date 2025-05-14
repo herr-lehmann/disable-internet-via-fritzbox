@@ -1,8 +1,6 @@
 services:
   disable-internet-via-fritzbox:
-    build:
-      platforms:
-        - linux/arm64
+    build: .
     container_name: disable-internet-via-fritzbox
     ports:
       - "8080:80" # Map container's port 80 to host port 8080
