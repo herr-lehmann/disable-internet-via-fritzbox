@@ -31,18 +31,20 @@ ENV FRITZBOX_USER=""
 ENV FRITZBOX_PASSWORD=""
 
 # Create entrypoint script
-RUN echo -e '#!/bin/bash\n\
-if [ -z "$FRITZBOX_USER" ] || [ -z "$FRITZBOX_PASSWORD" ]; then\n\
-    echo "Error: FRITZBOX_USER and FRITZBOX_PASSWORD must be set"\n\
-    exit 1\n\
-fi\n\
-\n\
-# Start cron daemon\n\
-service cron start\n\
-\n\
-# Start Apache in foreground\n\
-apachectl -D FOREGROUND' > /entrypoint.sh && \
-    chmod +x /entrypoint.sh
+COPY <<-'EOF' /entrypoint.sh
+#!/bin/bash
+if [ -z "$FRITZBOX_USER" ] || [ -z "$FRITZBOX_PASSWORD" ]; then
+    echo "Error: FRITZBOX_USER and FRITZBOX_PASSWORD must be set"
+    exit 1
+fi
+
+# Start cron daemon
+service cron start
+
+# Start Apache in foreground
+apachectl -D FOREGROUND
+EOF
+RUN chmod +x /entrypoint.sh
 
 # Expose web port
 EXPOSE 80
