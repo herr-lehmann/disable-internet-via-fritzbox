@@ -7,7 +7,6 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./config:/app/config:ro
-      - ./cgi-bin:/app/cgi-bin:ro
     environment:
       - FRITZBOX_USER=${FRITZBOX_USER}
       - FRITZBOX_PASSWORD=${FRITZBOX_PASSWORD}
