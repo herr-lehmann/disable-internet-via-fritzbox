@@ -1,120 +1,95 @@
-# Internet Access Control for Fritz!Box
+# disable-internet-via-fritzbox
 
-Simple utility to control internet access for specific IP addresses on your Fritz!Box router. Features both a REST API (via Apache CGI) and scheduled control (via cron).
+Control internet access of clients connected to your Fritz!Box.
 
 ## Features
 
-- REST API to enable/disable internet access
+- REST API to enable/disable internet access for specific IPs
 - Automatic enable at 5:00 AM via cron
-- IP address validation
-- Secure credential handling
+- Docker-based deployment
 - Detailed logging
+- Simple API without authentication
 
 ## Prerequisites
 
+- Fritz!Box router
 - Docker and Docker Compose
-- Fritz!Box router with remote access enabled
-- Fritz!Box user credentials with appropriate permissions
+- Fritz!Box user with appropriate permissions
 
-## Quick Start
+## Installation
 
-1. Create your environment file:
+1. Clone the repository:
 ```bash
-cp .env.sample .env
-nano .env  # Edit with your credentials
+git clone https://github.com/yourusername/disable-internet-via-fritzbox.git
+cd disable-internet-via-fritzbox
 ```
 
-2. Build and start the service:
+2. Create and edit environment file:
+```bash
+cp .env.sample .env
+nano .env
+```
+
+Required environment variables:
+```
+FRITZBOX_USER=your_fritzbox_username
+FRITZBOX_PASSWORD=your_fritzbox_password
+```
+
+3. Start the service:
 ```bash
 docker-compose up -d
 ```
 
 ## Usage
 
-### REST API
-
-The API is available at `http://your-host:8080/api/`
-
-**Enable internet access:**
+Enable internet access:
 ```bash
 curl "http://your-host:8080/api/?ip=192.168.178.50&state=on"
 ```
 
-**Disable internet access:**
+Disable internet access:
 ```bash
 curl "http://your-host:8080/api/?ip=192.168.178.50&state=off"
 ```
 
-**Using POST:**
+Using POST:
 ```bash
-curl -X POST http://your-host:8080/api/ \
-  -H "Content-Type: application/json" \
-  -d '{"ip":"192.168.178.50","state":"off"}'
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -d '{"ip":"192.168.178.50","state":"off"}' \
+     http://your-host:8080/api/
 ```
 
-### Automatic Schedule
+## Deployment
 
-By default, internet access is enabled every morning at 5:00 AM for the configured TARGET_IP.
-To modify the schedule, edit `config/crontab` and restart the container:
-
+Deploy to Raspberry Pi:
 ```bash
-docker-compose restart
+./deploy.sh pi raspberry.local
 ```
 
-## Configuration
+## API Reference
 
-Environment variables in `.env`:
+### GET /api/
+Enable/disable internet access
 
-- `FRITZBOX_USER`: Your Fritz!Box username (required)
-- `FRITZBOX_PASSWORD`: Your Fritz!Box password (required)
-- `TARGET_IP`: Default IP for cron jobs (default: 192.168.178.50)
-- `FRITZBOX_IP`: Fritz!Box IP address (default: 192.168.178.1)
-- `FRITZBOX_PORT`: Fritz!Box port (default: 49000)
-- `TZ`: Timezone for cron jobs (default: Europe/Berlin)
+Parameters:
+- `ip`: Target IP address
+- `state`: Either "on" or "off"
 
-## API Response Format
-
-Successful response:
+### POST /api/
+Same functionality as GET but accepts JSON body:
 ```json
 {
-  "status": "success",
-  "message": "Internet access for 192.168.178.50 set to on"
-}
-```
-
-Error response:
-```json
-{
-  "status": "error",
-  "message": "Invalid IP address format"
+  "ip": "192.168.178.50",
+  "state": "off"
 }
 ```
 
 ## Logs
 
-- Apache access logs: `logs/apache/access.log`
-- Apache error logs: `logs/apache/error.log`
-- Script execution logs: `logs/internet-control.log`
-
-## Security Notes
-
-- Use HTTPS if exposing the API to the internet
-- Consider implementing authentication for the API
-- Never commit the `.env` file
-- Credentials are stored as environment variables
-
-## Troubleshooting
-
-1. **API returns 500 error**
-   - Check Apache error logs
-   - Verify Fritz!Box credentials
-   - Ensure Fritz!Box is accessible
-
-2. **Cron job not running**
-   - Check container logs: `docker-compose logs`
-   - Verify timezone settings
-   - Check cron service status inside container
+Logs are stored in `logs/internet-control.log`
 
 ## License
 
-MIT License
+MIT

@@ -7,11 +7,10 @@ RUN apt-get update && apt-get install -y \
     curl \
     cron \
     tzdata \
-    apache2-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Enable Apache modules
-RUN a2enmod cgi headers auth_basic authn_file authz_user
+RUN a2enmod cgi headers
 
 # Create app directory and logs directory
 WORKDIR /app
@@ -22,12 +21,6 @@ COPY disable-internet.sh /app/
 COPY cgi-bin/internet-control.cgi /app/cgi-bin/
 COPY config/apache.conf /etc/apache2/conf-available/internet-control.conf
 COPY config/crontab /etc/cron.d/internet-control
-
-# Set up Basic Auth
-RUN htpasswd -bc /app/config/.htpasswd ${AUTH_USER:-admin} ${AUTH_PASSWORD:-admin}
-RUN chmod 644 /app/config/.htpasswd
-
-# Set permissions
 RUN chmod +x /app/disable-internet.sh /app/cgi-bin/internet-control.cgi
 
 # Enable our Apache configuration
