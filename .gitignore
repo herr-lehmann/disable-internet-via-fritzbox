@@ -1,0 +1,20 @@
+# Sensitive files
+.env
+*.env
+
+# Logs
+logs/
+*.log
+
+# Docker
+.docker/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
