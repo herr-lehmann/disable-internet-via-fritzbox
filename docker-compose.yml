@@ -1,11 +1,13 @@
-version: '3.8'
+version: "3.8"
 
 services:
   disable-internet-via-fritzbox:
-    build: .
+    build:
+      platforms:
+        - linux/arm64
     container_name: disable-internet-via-fritzbox
     ports:
-      - "8080:80"  # Map container's port 80 to host port 8080
+      - "8080:80" # Map container's port 80 to host port 8080
     volumes:
       - ./logs:/app/logs
       - ./config:/app/config:ro
