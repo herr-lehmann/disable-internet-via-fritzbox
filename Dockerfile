@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     cron \
     tzdata \
+    dos2unix \
     && rm -rf /var/lib/apt/lists/*
 
 # Enable Apache modules
@@ -30,21 +31,10 @@ RUN a2enconf internet-control
 ENV FRITZBOX_USER=""
 ENV FRITZBOX_PASSWORD=""
 
-# Create entrypoint script
-COPY <<-'EOF' /entrypoint.sh
-#!/bin/bash
-if [ -z "$FRITZBOX_USER" ] || [ -z "$FRITZBOX_PASSWORD" ]; then
-    echo "Error: FRITZBOX_USER and FRITZBOX_PASSWORD must be set"
-    exit 1
-fi
-
-# Start cron daemon
-service cron start
-
-# Start Apache in foreground
-apachectl -D FOREGROUND
-EOF
-RUN chmod +x /entrypoint.sh
+# Copy and set up entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh && \
+    dos2unix /entrypoint.sh
 
 # Expose web port
 EXPOSE 80
