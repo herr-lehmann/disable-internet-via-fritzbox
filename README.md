@@ -90,6 +90,26 @@ Same functionality as GET but accepts JSON body:
 
 Logs are stored in `logs/internet-control.log`
 
+## Apple Shortcuts
+
+To control internet access via your iOS device:
+
+1. Available shortcuts in `shortcuts/`:
+   - `enable.shortcut`: Enables internet access for a device
+   - `disable.shortcut`: Disables internet access for a device
+
+3. To import and configure a shortcut:
+   - Download the .shortcut file to your iOS device
+   - Tap the file
+   - Choose "Add Shortcut"
+   - Configure:
+     - IP address of the device to control
+     - Host address of your container (e.g. http://192.168.178.19:8080)
+
+4. Apply your settings to the shortcuts
+  - Adjust the called url with the IP adresses of your devices
+
+
 ## License
 
 MIT
