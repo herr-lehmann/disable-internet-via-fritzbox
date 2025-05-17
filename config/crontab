@@ -1,5 +1,5 @@
-# Enable all internet access every morning at 5:00
-0 5 * * * /app/disable-internet.sh 192.168.178.50 on
+# Test: Enable internet access every minute
+0 5 * * * /app/disable-internet.sh 192.168.178.10 on
 
 # Monitor cron daemon and restart if necessary
 * * * * * pgrep -f crond > /dev/null || { echo "Cron daemon not running, restarting..."; pkill crond; crond; }
