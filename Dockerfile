@@ -3,7 +3,7 @@ FROM debian:bullseye-slim
 # Install and configure
 RUN apt-get update && apt-get install -y apache2 curl cron && \
     rm -rf /var/lib/apt/lists/* && \
-    a2enmod cgi headers && \
+    a2dismod mpm_event && a2enmod mpm_prefork cgi headers && \
     mkdir -p /app/logs /app/cgi-bin && \
     chown -R www-data:www-data /app
 
