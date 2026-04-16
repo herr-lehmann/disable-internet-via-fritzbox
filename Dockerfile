@@ -26,4 +26,4 @@ RUN chmod 755 /app/disable-internet.sh /app/cgi-bin/internet-control.cgi && \
 EXPOSE 80
 
 # Start services
-CMD service cron start && apache2ctl -D FOREGROUND
+CMD printenv | grep -E '^FRITZBOX_' > /etc/fritzbox.env && service cron start && apache2ctl -D FOREGROUND
