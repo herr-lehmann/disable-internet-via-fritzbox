@@ -5,16 +5,14 @@ Control internet access of clients connected to your Fritz!Box.
 ## Features
 
 - REST API to enable/disable internet access for specific IPs
-- Automatic enable at 5:00 AM via cron
+- Query current internet access state per IP
+- Automatic disable at 5:00 AM via cron (configurable target IP)
 - Docker-based deployment
-- Detailed logging
-- Simple API without authentication
 
 ## Prerequisites
 
-- Fritz!Box router
+- Fritz!Box router with a user that has home network access permissions
 - Docker and Docker Compose
-- Fritz!Box user with appropriate permissions
 
 ## Installation
 
@@ -34,6 +32,7 @@ Required environment variables:
 ```
 FRITZBOX_USER=your_fritzbox_username
 FRITZBOX_PASSWORD=your_fritzbox_password
+TARGET_IP=192.168.178.50
 ```
 
 3. Start the service:
@@ -41,19 +40,27 @@ FRITZBOX_PASSWORD=your_fritzbox_password
 docker-compose up -d
 ```
 
-## Usage
+## API Reference
 
-Enable internet access:
+### GET /api/status
+Query the current internet access state of a device.
+
 ```bash
-curl "http://your-host:8080/api/?ip=192.168.178.50&state=on"
+curl "http://your-host:8080/api/status?ip=192.168.178.50"
 ```
 
-Disable internet access:
-```bash
-curl "http://your-host:8080/api/?ip=192.168.178.50&state=off"
+Response:
+```json
+{"ip": "192.168.178.50", "state": "on"}
 ```
 
-Using POST:
+`state` is either `"on"` (internet allowed) or `"off"` (internet blocked).
+
+---
+
+### POST /api/
+Enable or disable internet access for a device.
+
 ```bash
 curl -X POST \
      -H "Content-Type: application/json" \
@@ -61,54 +68,25 @@ curl -X POST \
      http://your-host:8080/api/
 ```
 
-## Deployment
-
-Deploy to Raspberry Pi:
-```bash
-./deploy.sh pi raspberry.local
-```
-
-## API Reference
-
-### GET /api/
-Enable/disable internet access
-
-Parameters:
-- `ip`: Target IP address
-- `state`: Either "on" or "off"
-
-### POST /api/
-Same functionality as GET but accepts JSON body:
+Response:
 ```json
-{
-  "ip": "192.168.178.50",
-  "state": "off"
-}
+{"status": "success", "message": "Internet access for 192.168.178.50 set to off"}
 ```
-
-## Logs
-
-Logs are stored in `logs/internet-control.log`
 
 ## Apple Shortcuts
 
-To control internet access via your iOS device:
+iOS/macOS shortcuts for quick access are available in `shortcuts/`:
+- `enable.shortcut` — enables internet access for a device
+- `disable.shortcut` — disables internet access for a device
 
-1. Available shortcuts in `shortcuts/`:
-   - `enable.shortcut`: Enables internet access for a device
-   - `disable.shortcut`: Disables internet access for a device
-
-3. To import and configure a shortcut:
-   - Download the .shortcut file to your iOS device
-   - Tap the file
-   - Choose "Add Shortcut"
-   - Configure:
-     - IP address of the device to control
-     - Host address of your container (e.g. http://192.168.178.19:8080)
-
-4. Apply your settings to the shortcuts
-  - Adjust the called url with the IP adresses of your devices
-
+To import and configure a shortcut:
+1. Download the `.shortcut` file to your device and tap it to add it
+2. Edit the shortcut and update:
+   - The IP address of the device to control
+   - The host address of your container (e.g. `http://192.168.178.19:8080`)
+   - Request method: `POST`
+   - Header: `Content-Type: application/json`
+   - Body: `{"ip":"192.168.178.50","state":"on"}` (or `"off"`)
 
 ## License
 

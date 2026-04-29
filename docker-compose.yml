@@ -3,18 +3,12 @@ services:
     build: .
     container_name: disable-internet-via-fritzbox
     ports:
-      - "8080:80" # Map container's port 80 to host port 8080
-    volumes:
-      - ./logs:/app/logs
-      - ./config:/app/config:ro
+      - "8080:8000"
     environment:
       - FRITZBOX_USER=${FRITZBOX_USER}
       - FRITZBOX_PASSWORD=${FRITZBOX_PASSWORD}
-      - TARGET_IP=${TARGET_IP:-192.168.178.50}
       - FRITZBOX_IP=${FRITZBOX_IP:-192.168.178.1}
       - FRITZBOX_PORT=${FRITZBOX_PORT:-49000}
+      - TARGET_IP=${TARGET_IP:-192.168.178.50}
       - TZ=${TZ:-Europe/Berlin}
-      - APACHE_RUN_USER=www-data
-      - APACHE_RUN_GROUP=www-data
-      - APACHE_LOG_DIR=/var/log/apache2
     restart: unless-stopped

@@ -1,29 +1,19 @@
-FROM debian:bullseye-slim
+FROM python:3.12-slim
 
-# Install and configure
-RUN apt-get update && apt-get install -y apache2 curl cron && \
-    rm -rf /var/lib/apt/lists/* && \
-    a2dismod mpm_event && a2enmod mpm_prefork cgi headers && \
-    mkdir -p /app/logs /app/cgi-bin && \
-    chown -R www-data:www-data /app
+RUN apt-get update && apt-get install -y curl cron gettext-base && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy files and set permissions
-COPY disable-internet.sh /app/
-COPY cgi-bin/internet-control.cgi /app/cgi-bin/
-COPY config/apache.conf /etc/apache2/conf-available/internet-control.conf
-COPY config/crontab /etc/cron.d/internet-control
+WORKDIR /app
 
-# Configure permissions and services
-RUN chmod 755 /app/disable-internet.sh /app/cgi-bin/internet-control.cgi && \
-    chown -R www-data:www-data /app && \
-    chmod 755 /app/cgi-bin && \
+RUN pip install --no-cache-dir fastapi uvicorn httpx
+
+COPY main.py .
+COPY config/crontab /app/crontab.template
+
+EXPOSE 8000
+
+CMD envsubst < /app/crontab.template > /etc/cron.d/internet-control && \
     chmod 0644 /etc/cron.d/internet-control && \
     crontab /etc/cron.d/internet-control && \
-    a2enconf internet-control && \
-    echo "ServerName localhost" >> /etc/apache2/apache2.conf
-
-# Expose web port
-EXPOSE 80
-
-# Start services
-CMD printenv | grep -E '^FRITZBOX_' > /etc/fritzbox.env && service cron start && apache2ctl -D FOREGROUND
+    service cron start && \
+    uvicorn main:app --host 0.0.0.0 --port 8000
